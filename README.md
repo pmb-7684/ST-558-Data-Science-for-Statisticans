@@ -2,7 +2,7 @@
 
 ### **Pokémon API**
 
-  Using the pokemon api website, our group requested unstructured to create an instructive vignette.  The vignette is located [here.](https://pmb-7684.github.io/ST558_Project_2/)
+  Using [pokemonapi.co,](https://pokeapi.co/) our group created an instructive vignette to assist users with requesting information from the api.  The vignette is located [here.](https://pmb-7684.github.io/ST558_Project_2/)
 
 
 
@@ -14,5 +14,5 @@
   
   ### **Horseshoe Crabs**
   
-   The assignment explores the characteristics of mating horseshoe crabs. In addition, we used varies types of plots - boxplot, barplot, and scatter plots with regression lines to explore what characteristics attracts male horseshoe crabs (also known as satellites).
+   The assignment explores the characteristics of mating horseshoe crabs. In addition, we created varies types of plots - boxplot, barplot, and scatter plots with regression lines to explore what characteristics attracts male horseshoe crabs (also known as satellites) to females.
 
