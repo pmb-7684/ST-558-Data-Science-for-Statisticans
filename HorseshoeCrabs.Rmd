@@ -1,0 +1,228 @@
+---
+title: "ST558_Hwk5"
+author: "Paula Bailey"
+date: "2022-09-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data
+
+This data set is on characteristics of mating horseshoe crabs.
+
+Description of Variables:
+
+  - 173 mating female crabs
+  - y: whether the female crab has a “satellite” — male crab that group around the female and may     fertilize her eggs
+  - Satellites: number of satellites
+  - Color: female crab’s color (2 = “light”, 3 = “medium”, 4 = “dark”, and 5 = “darker”)
+  - Spine: spine condition (1 = “both good”, 2 = “one worn or broken”, and 3 = “both worn or 
+    broken”)
+  - Weight: female crab weight (g)
+  - Width: female carapace width (cm)
+
+
+```{r load library, message=FALSE, warning=FALSE}
+library(tidyverse)
+
+```
+1.
+We read in the `crab.txt` data set using `read.table()`.  By using `skip = 1`, we skip the first row that contains the column names. We can take advantage of tibble properties by converting the data frame to tibble using `as_tibble()`.
+```{r}
+crab <- as_tibble(read.table("crabs.txt", skip = 1))
+```
+We need to add the columns names to the tibble read in.  Below we can verify that we have the correct R object by using `colnames(crab)`
+```{r}
+colnames(crab)
+```
+We use c(" ") to create a vector of column names that replace the names in colnames(crab)
+```{r}
+colnames(crab)<- c("color", "spine", "width", "satellite", "weight", "y")
+```
+
+We verify the changes by calling colnames(crab) again.
+```{r}
+colnames(crab)
+```
+
+We can use `factor()` to create factors for the following columns: color, spine, and y. It gives us special properties for handling categorical variables like ordering. Afterwards, we use `ordered()` to change the order of "No Satellite" and "At least 1 Satellite". 
+```{r}
+crab$color <- factor(as.character(crab$color), level = c('2','3','4','5'), 
+                          labels = c("light", "medium", "dark", "darker"))
+
+crab$spine <- factor(as.character(crab$spine), level = c('1','2','3'), 
+                          labels = c("Both Good", "One Worn/Broken", "Both Worn/Broken"))
+
+crab$y <- factor(as.character(crab$y), level = c('1','0'), 
+                          labels = c("At least 1 Satellite", "No Satellite"))
+
+crab$y <- ordered(crab$y, levels = c("No Satellite","At least 1 Satellite")) 
+```
+
+We print the tibble and verify our changes.
+```{r}
+crab
+```
+2.
+We use the updated crab data set to create a two-way contingency table between satellite and spine variable. We simply use `table()`.
+
+The table shows a female crab with 0 satellites (male crabs) is likely to have both of the spines worn or broken.  From the data, 11 female crabs had both spines good, 8 female crabs with one worn or broken spines, and 43 female crabs with both spines either worn or broken.
+
+Similarly, we can see a female crab with 3 satellites (male crabs) is likely to have both of the spines worn or broken.  From the data, 2 female crabs had both spines good, 2 female crabs with one worn or broken spines, and 15 female crabs with both spines either worn or broken.
+
+It seems that male crabs prefer female crabs with both spines worn or broken . Although, it's odd in regards to zero (0) satellite.  It makes me wonder, if those female crabs had already released their eggs and they were fertilized in the past.
+```{r}
+table(crab$satellite,crab$spine )
+```
+3.
+We use the updated crab data set to create a three-way contingency table between the color, spine and satellite variables.  
+```{r}
+table(crab$color,crab$spine, crab$satellite)
+```
+
+Using the outputted table above, we can create a two way table between spine and satellite for crabs with ‘darker’color. 
+
+We use `str()` to look at the structure and confirm which column to parse.  We see from the structure information that [4,,] can extract this information on darker colored crabs.
+
+The table shows a darker colored crab with 0 satellites (male crabs) is likely to have both of its spines worn or broken.  From the data, 1 female crabs has both spines good, 1 female crabs with one worn or broken spines, and 13 female crabs with both spines either worn or broken.
+
+```{r}
+tab <- table(crab$color,crab$spine, crab$satellite)
+str(tab)
+```
+```{r}
+tab[4,,]
+```
+
+4.
+We use the updated data set to create a side-by-side bar plot with color and satellite variables. First, we need to create a basic plot using `ggplot(data = crab, aes(x= color))`. Afterwards, we add layers: `labs()` creates the plot title, `geom_bar()` tells R the type of graph we want to plot, `position =` within the `geom_bar()` lets R know we want to use "dodge" for a side-by-side bar plot, `scale_fill_discrete()` removes the title from the legend, `theme()` allows us to change the size of the title, and `coord_flip()`rotates the axis. 
+
+We can see the following from the plot below:
+
+  - Female crabs with at least one satellite are more likely to have a male crab fertilizer her eggs.
+  - The likelihood increases if the female is medium or dark in color. 
+
+
+```{r}
+g <- ggplot(data = crab, aes(x= color))
+g + labs(x= 'Female Crab Color') + geom_bar(aes(fill = y), position = "dodge") +
+    scale_fill_discrete(name = NULL) +
+    theme(title = element_text(size=15)) +
+    coord_flip()
+
+```
+
+We use the updated data set to create a side-by-side bar plot with the spine and satellite variables. It is completed using the same techniques as the previous graph.
+
+We can see the following from the plot below:
+
+  - Female crabs with both spines worn or broken are more likely to have a male crab fertilizer her eggs.
+  - The likelihood increases if the female has at least one satellite. 
+  
+```{r}
+
+g <- ggplot(data = crab, aes(x= spine))
+g + labs(x= 'Female Crab Spine Condition') + geom_bar(aes(fill = y), position = "dodge") +
+    scale_fill_discrete(name = NULL)+
+    coord_flip()+
+    theme(title = element_text(size=15))
+```
+
+We use the updated data set to create a side-by-side bar plot with the spine and color variables. Again, we use the same techniques as the previous graph with one small change. We use `labs(x= 'Female Crab Spine Condition') ` to create a x-label.
+
+We can see the following from all three plot below:
+
+  - Female crabs with both spines worn or broken are more likely to have a male crab fertilizer her eggs.
+  - The likelihood increases if the female is medium or dark in color. 
+  - Females with just one spine broken or worn are not likely to have her eggs fertilized.
+
+
+```{r}
+
+g <- ggplot(data = crab, aes(x= spine))
+g + labs(x= 'Female Crab Spine Condition') + geom_bar(aes(fill = color), position = "dodge") +
+    scale_fill_discrete(name = 'Female Crab Color') +
+    coord_flip()
+```
+
+5.
+Again We use the updated data set to create a side-by-side car plot with the x-axis labels oriented 45 degrees and apply `facet_wrap()`.  To complete the axis orientation for the labels, we use `theme()` to tell R to rotate the `axis.text.x` by 45 degrees. `facet_wrap()` allows us to create stratified plots based on factors of spines.
+
+We can see the following:
+
+  - Female crabs with both spines worn or broken are more likely to have a male crab fertilizer her eggs.
+  - The likelihood increases if the female is medium or dark in color. 
+  - Females with just one spine broken or worn is not likely to have her eggs fertilized.
+
+```{r}
+g <- ggplot(data = crab, aes(x = color))
+g + labs(x= 'Female Crab Spine Condition') + geom_bar(aes(fill = y), position = "dodge") +
+    scale_fill_discrete(name = NULL)+
+    theme(axis.text.x = element_text(angle=45))+
+    facet_wrap(~spine)
+  
+```
+6.
+A summary table which provides average, standard deviation, median and IQR for the variable y (satellite or a least one satellite) for each level of color. We use `group_by` and `summarize()`by the weight of the female crabs to complete the task. `round()` allows us to round the results to the nearest whole number.
+
+The females crabs with a darker color and at least one satellite on average weights 2200 grams and a median weight of 2100 grams, so it's slightly skewed to the right. It tells us that any outliers are on the upper end of the data.  The difference between first quartile and third quartile is 200 grams.  The average distance our data falls from the mean is 523 grams
+
+```{r message=FALSE}
+crab %>% group_by(color,y)%>%summarise(Avg = round(mean(weight)), 
+                                       Sd = round(sd(weight)), 
+                                       Median = round(median(weight)), 
+                                       IQR = round(IQR(weight))) 
+```
+7.
+We use the updated crab data set to create box plots for weight. We use the base plot `ggplot(crab, aes(x= y, y= width))` and add `geom_boxplot()` to create the boxplot.  This is layered by a scatter plot `geom_point(aes( color = y), position ="jitter")` which plots weight of the crab and applies color based on y - "No Satellite" and "At least 1 Satellite". It is necessary to use "jitter" to prevent the points from being plotted on top of one another.
+
+From the Boxplot for Weight, we can see the following:
+
+  - The female crabs with at least 1 satellite weights more than females with no satellite.
+  - The median weight for that group is approximately 2600 grams compared to other group at 2200 grams.
+
+```{r}
+g <- ggplot(crab, aes(x= y, y= weight))
+g + geom_boxplot() +
+    labs(title =  'Boxplot for Weight') +
+    geom_point(aes( color = y), position ="jitter") 
+
+```
+
+The updated crab data set to create box plots for width. We use the base plot `ggplot(crab, aes(x= y, y= width))` and add `geom_boxplot()`.  This is layered by adding a scatter plot `geom_point(aes( color = y), position ="jitter")` which plots width of the crab and applies color based on y - "No Satellite" and "At least 1 Satellite". 
+
+From the Boxplot for Width, we can see the following:
+
+  - The female crabs with at least 1 male satellite are wider than females with no satellite.
+  - The median width for that group is approximately 27 centimeters compared to other group at 26 centimeters.
+```{r}
+g <- ggplot(crab, aes(x= y, y= width))
+g + geom_boxplot() +
+    labs(title =  'Boxplot for Width') +
+   geom_point(aes( color = y), position ="jitter")
+```
+8.
+We can report the correlation between weight and and width variables using `cor()`.  The value is approximately 0.87, which indicates a strong positive correlation.  So, as the weight increases width of the crab increases.
+```{r}
+cor(crab$weight, crab$width)
+```
+The final plot is weight vs width scatter plot with an added linear regression line. We have the base plot `ggplot(data = crab, aes(x= weight, y= width))`.  The  most interesting layer is `geom_point(aes(shape = y, color = color ))+` which divides the points by shape (circle if "No Satellite" and triangle if "At least 1 Satellite"). Afterward, using `color = color` to apply color based on the color of the female crab. 
+
+From the plots, we can see the following:
+
+  - The points have a positive linear association.  As weight increases, the width increases.
+  - Most of the female crabs has at least one male crab.
+  - The weight of the female crabs falls in the range of 2,000 grams - 3,000 grams.
+  - The width of the female crabs falls in the range of 24 centimeters - 28 centimeters.
+  
+```{r message=FALSE, warning=FALSE}
+g <- ggplot(data = crab, aes(x= weight, y= width))
+g +  geom_point(aes(shape = y, color = color ))+ 
+     geom_smooth(method=lm, col = "blue") +
+     labs(title ='Weight vs Width')
+  
+```
+
