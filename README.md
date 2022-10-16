@@ -1,3 +1,5 @@
-# ST 558
+# ST 558   Data Science for Statisticans
 
-Projects for Data Science for Statisticans
+Project 1
+
+Project 2 
